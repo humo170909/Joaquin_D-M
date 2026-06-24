@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — JOAQUIN D&M</title>
+  <link rel="icon" type="image/jpeg" href="../assets/logo.jpeg">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="app"></div>
+<div class="session-bar"><div class="session-bar-fill" id="sessionBar"></div></div>
+<div id="notificationContainer" class="notification-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../js/supabase.js"></script>
+<script>
+// Inyectar layout
+document.getElementById('app').innerHTML = `
+  ${renderSidebar()}
+  ${renderTopbar('Dashboard', 'Panel de control general — JOAQUIN D&M')}
+  <main class="main-content" id="mainContent">
+    <!-- KPIs -->
+    <div class="dashboard-section">
+      <div class="section-title">Resumen Operacional</div>
+      <div class="kpi-grid" id="kpiGrid">
+        ${[1,2,3,4,5,6].map(() => `<div class="kpi-card blue"><div class="skeleton" style="height:100px"></div></div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="dashboard-section">
+      <div class="section-title">Análisis de Viajes</div>
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">📈</div>
+              Viajes por Día (Último Mes)
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartViajesDia"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">📊</div>
+              Viajes por Semana
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartViajesSemana"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">📅</div>
+              Viajes por Mes
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartViajesMes"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">👤</div>
+              Productividad por Colaborador
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartColaboradores"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viajes Recientes -->
+    <div class="dashboard-section">
+      <div class="section-title">Actividad Reciente</div>
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">🚛</div>
+              Últimos Viajes
+            </div>
+            <a href="viajes.html" class="btn btn-secondary btn-sm">Ver todos →</a>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-wrapper" id="recentTripsTable">
+              <div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando...</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="title-icon">📝</div>
+              Registro de Auditoría
+            </div>
+            <a href="reportes.html" class="btn btn-secondary btn-sm">Ver todo →</a>
+          </div>
+          <div class="card-body" id="auditList">
+            <div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando...</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+`;
+</script>
+<script src="../js/dashboard.js"></script>
+</body>
+</html>
