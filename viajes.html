@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viajes — JOAQUIN D&M</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="app"></div>
+<div class="session-bar"><div class="session-bar-fill" id="sessionBar"></div></div>
+<div id="notificationContainer" class="notification-container"></div>
+
+<!-- Modal: Viaje -->
+<div class="modal-overlay" id="modalViaje">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-icon blue">🚛</div>
+        <span id="modalViajeTitle">Nuevo Viaje</span>
+      </div>
+      <button class="btn-modal-close" onclick="closeModalViaje()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="formViaje" novalidate>
+        <input type="hidden" id="viajeId">
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Fecha <span class="required">*</span></label>
+            <input type="date" class="form-input" id="viajeFecha">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora Salida <span class="required">*</span></label>
+            <input type="time" class="form-input" id="viajeHoraSalida">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora Llegada</label>
+            <input type="time" class="form-input" id="viajeHoraLlegada">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Origen <span class="required">*</span></label>
+            <input type="text" class="form-input" id="viajeOrigen" maxlength="200" placeholder="Ciudad o punto de partida">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destino <span class="required">*</span></label>
+            <input type="text" class="form-input" id="viajeDestino" maxlength="200" placeholder="Ciudad o punto de llegada">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Placa Vehículo Resguardo</label>
+            <input type="text" class="form-input" id="viajePlacaResguardo" maxlength="20" placeholder="ABC-123" style="text-transform:uppercase">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Placa Tráiler</label>
+            <input type="text" class="form-input" id="viajePlacaTrailer" maxlength="20" placeholder="XYZ-789" style="text-transform:uppercase">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Conductor Resguardo</label>
+            <input type="text" class="form-input" id="viajeConductorResguardo" maxlength="100" placeholder="Nombre completo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Conductor Tráiler</label>
+            <input type="text" class="form-input" id="viajeConductorTrailer" maxlength="100" placeholder="Nombre completo">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Pago por Viaje (S/) <span class="required">*</span></label>
+            <input type="number" class="form-input" id="viajePago" min="0" step="0.50" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horas Trabajadas</label>
+            <input type="text" class="form-input" id="viajeHoras" readonly placeholder="Auto-calculado">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Personal Asignado</label>
+          <div class="tag-list" id="personalTagList" onclick="document.getElementById('personalSearch').focus()">
+            <input type="text" id="personalSearch" style="border:none;outline:none;flex:1;min-width:120px;background:transparent;font-size:.85rem;color:var(--text-primary)" placeholder="Buscar y agregar personal...">
+          </div>
+          <div id="personalDropdown" style="display:none;position:absolute;z-index:200;background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);max-height:200px;overflow-y:auto;min-width:300px"></div>
+          <input type="hidden" id="personalIds">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-input" id="viajeEstado">
+              <option value="programado">Programado</option>
+              <option value="en_curso">En Curso</option>
+              <option value="completado">Completado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Observaciones</label>
+          <textarea class="form-input form-textarea" id="viajeObservaciones" maxlength="500" placeholder="Notas adicionales sobre el viaje..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModalViaje()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSaveViaje" onclick="saveViaje()">
+        <span>💾</span> Guardar Viaje
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ver Detalle -->
+<div class="modal-overlay" id="modalDetalleViaje">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-icon blue">🚛</div>
+        <span>Detalle del Viaje</span>
+      </div>
+      <button class="btn-modal-close" onclick="document.getElementById('modalDetalleViaje').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body" id="modalDetalleBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script>
+document.getElementById('app').innerHTML = `
+  ${renderSidebar()}
+  ${renderTopbar('Viajes', 'Registro y control de operaciones de resguardo')}
+  <main class="main-content" id="mainContent">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Viajes</h1>
+        <div class="breadcrumb">
+          <span>Inicio</span><span class="sep"></span><span>Viajes</span>
+        </div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary" onclick="exportViajes()"><span>📥</span> Exportar</button>
+        <button class="btn btn-primary" data-role="supervisor" onclick="openModalViaje()"><span>+</span> Nuevo Viaje</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:24px" id="viajesKpis"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="title-icon">🚛</div> Registro de Viajes</div>
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar origen, destino, placa...">
+          </div>
+          <select class="filter-select" id="filterEstado">
+            <option value="">Todos los estados</option>
+            <option value="programado">Programado</option>
+            <option value="en_curso">En Curso</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <input type="date" class="filter-select" id="filterFechaInicio" title="Desde">
+          <input type="date" class="filter-select" id="filterFechaFin" title="Hasta">
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-wrapper" id="tablaViajes">
+          <div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando viajes...</p></div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </main>
+`;
+</script>
+<script src="js/viajes.js"></script>
+</body>
+</html>

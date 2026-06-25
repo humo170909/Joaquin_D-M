@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagos Pendientes — JOAQUIN D&M</title>
+  <link rel="icon" type="image/jpeg" href="../assets/logo.jpeg">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="app"></div>
+<div class="session-bar"><div class="session-bar-fill" id="sessionBar"></div></div>
+<div id="notificationContainer" class="notification-container"></div>
+
+<!-- ========== MODAL: Editar Pago Pendiente ========== -->
+<div class="modal-overlay" id="modalEditPendiente"
+     onclick="if(event.target===this)closeModalEditPendiente()">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-icon blue">✏</div>
+        <span>Modificar Pago Pendiente</span>
+      </div>
+      <button class="btn-modal-close" onclick="closeModalEditPendiente()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Información de solo lectura -->
+      <div style="background:var(--light-bg);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:20px;border-left:4px solid var(--primary-blue)">
+        <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">
+          Información del Viaje (solo lectura)
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:.78rem;color:var(--text-muted)">Colaborador</div>
+            <div style="font-weight:700;color:var(--text-primary)" id="editPendColaborador">—</div>
+          </div>
+          <div>
+            <div style="font-size:.78rem;color:var(--text-muted)">Ruta</div>
+            <div style="font-weight:700;color:var(--text-primary)" id="editPendRuta">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos editables -->
+      <form id="formEditPendiente" onsubmit="return false">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Pago (S/) <span class="required">*</span></label>
+            <input type="number" class="form-input" id="editPendPago"
+                   step="0.01" min="0" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado del Pago</label>
+            <select class="form-input" id="editPendEstado">
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="pagado">✅ Pagado</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha del Viaje</label>
+            <input type="date" class="form-input" id="editPendFecha">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horas Trabajadas</label>
+            <input type="number" class="form-input" id="editPendHoras"
+                   step="0.01" min="0" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observaciones</label>
+          <textarea class="form-input form-textarea" id="editPendObs"
+                    rows="3" placeholder="Observaciones adicionales..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModalEditPendiente()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmSaveEditPendiente()">
+        💾 Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script>
+document.getElementById('app').innerHTML = `
+  ${renderSidebar()}
+  ${renderTopbar('Pagos Pendientes', 'Viajes completados sin pago registrado — JOAQUIN D&M')}
+  <main class="main-content" id="mainContent">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Pagos Pendientes</h1>
+        <div class="breadcrumb">
+          <span>Inicio</span><span class="sep">›</span><span>Pagos Pendientes</span>
+        </div>
+      </div>
+      <div class="page-header-actions">
+        <a class="btn btn-secondary" href="pagos-pagados.html">
+          <span>✅</span> Ver Pagos Realizados
+        </a>
+      </div>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:24px" id="pendientesKpis">
+      <div class="kpi-card amber"><div class="skeleton" style="height:90px"></div></div>
+      <div class="kpi-card red"><div class="skeleton" style="height:90px"></div></div>
+      <div class="kpi-card purple"><div class="skeleton" style="height:90px"></div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-body" style="padding:16px 24px">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label class="form-label">Buscar Colaborador</label>
+            <div class="search-input-wrapper" style="width:240px">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" id="buscarColaborador" placeholder="Nombre o DNI...">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="loadPendientes()">
+            <span>🔄</span> Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="title-icon">⏳</div>Viajes Pendientes de Pago</div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-wrapper" id="tablaPendientes">
+          <div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando...</p></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+`;
+</script>
+<script src="../js/pagos-pendientes.js"></script>
+</body>
+</html>
