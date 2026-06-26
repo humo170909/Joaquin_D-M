@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagos — JOAQUIN D&M</title>
+  <link rel="icon" type="image/jpeg" href="../assets/logo.jpeg">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="app"></div>
+<div class="session-bar"><div class="session-bar-fill" id="sessionBar"></div></div>
+<div id="notificationContainer" class="notification-container"></div>
+
+<!-- Modal: Detalle de Pago -->
+<div class="modal-overlay" id="modalDetallePago">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-icon green">💰</div>
+        <span id="modalDetallePagoTitle">Detalle de Pagos</span>
+      </div>
+      <button class="btn-modal-close" onclick="document.getElementById('modalDetallePago').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body" id="modalDetallePagoBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('modalDetallePago').classList.remove('show')">Cerrar</button>
+      <button class="btn btn-success" id="btnMarcarPagado" onclick="marcarPagado()">
+        <span>✓</span> Marcar como Pagado
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script>
+document.getElementById('app').innerHTML = `
+  ${renderSidebar()}
+  ${renderTopbar('Pagos', 'Control de remuneraciones — JOAQUIN D&M')}
+  <main class="main-content" id="mainContent">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Pagos</h1>
+        <div class="breadcrumb">
+          <span>Inicio</span><span class="sep">›</span><span>Pagos</span>
+        </div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary" onclick="exportPagos()"><span>📥</span> Exportar</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:24px" id="pagosKpis"></div>
+
+    <!-- Filtros periodo -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-body" style="padding:16px 24px">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Período</label>
+            <select class="filter-select" id="filtroPeriodo" style="min-width:140px">
+              <option value="semana">Semana Actual</option>
+              <option value="mes" selected>Mes Actual</option>
+              <option value="personalizado">Personalizado</option>
+            </select>
+          </div>
+          <div id="fechasPersonalizadas" style="display:none;gap:12px;align-items:flex-end">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Desde</label>
+              <input type="date" class="filter-select" id="fechaDesde">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Hasta</label>
+              <input type="date" class="filter-select" id="fechaHasta">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Buscar</label>
+            <div class="search-input-wrapper" style="width:220px">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" id="buscarColaborador" placeholder="Nombre o DNI...">
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:18px" onclick="loadPagos()">
+            <span>🔄</span> Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs: Semanal / Mensual -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-primary" id="tabSemanal" onclick="switchTab('semanal')">📅 Resumen Semanal</button>
+      <button class="btn btn-secondary" id="tabMensual" onclick="switchTab('mensual')">📆 Resumen Mensual</button>
+    </div>
+
+    <!-- Tabla de pagos -->
+    <div class="payment-summary-card" id="pagosList">
+      <div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando resumen de pagos...</p></div>
+    </div>
+  </main>
+`;
+</script>
+<script src="../js/pagos.js"></script>
+</body>
+</html>
