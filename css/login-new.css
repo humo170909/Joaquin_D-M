@@ -408,7 +408,7 @@ body {
     width: 280px;      /* tamaño */
     height: auto;
 
-    left: 1670px;       /* mover derecha/izquierda */
+    left: 1370px;       /* mover derecha/izquierda */
     top: -25px;        /* mover arriba/abajo */
 
     z-index: 10;
