@@ -4,6 +4,12 @@
    ============================================================ */
 
 /* ---- Variables CSS ---- */
+@font-face {
+  font-family: 'AddCityBoy';
+  src: url('../assets/fonts/AddCityBoy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 :root {
   /* Paleta roja — idéntica al login */
   --primary:        #d9534f;
@@ -390,7 +396,8 @@ img { max-width: 100%; }
 }
 
 .sidebar-brand h2 {
-  font-size: .95rem;
+  font-family: 'AddCityBoy', sans-serif; 
+  font-size: 1.5rem;
   font-weight: 800;
   color: #fff;
   white-space: nowrap;
